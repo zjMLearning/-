@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>矿山充填系统参数与计算可视化系统/沈阳设计院</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-mountain"></i>
+                <span>矿山充填系统计算器</span>
+            </div>
+            <div class="nav-controls">
+                <button class="btn btn-secondary" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="btn btn-primary" id="exportBtn">
+                    <i class="fas fa-download"></i> 导出数据
+                </button>
+                <button class="btn btn-success" id="saveBtn">
+                    <i class="fas fa-save"></i> 保存配置
+                </button>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <!-- 左侧参数面板 -->
+            <div class="sidebar left-sidebar">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-cogs"></i> 基本参数</h3>
+                        <button class="btn btn-sm btn-outline" id="resetParams">
+                            <i class="fas fa-undo"></i> 重置
+                        </button>
+                    </div>
+                    
+                                         <div class="param-panel-scroll">
+                         <div class="param-group">
+                             <h4>矿山参数</h4>
+                             <div class="param-item">
+                                 <label for="pa">充填法年矿石产量 P<sub>a</sub> (t/a)</label>
+                                 <input type="number" id="pa" value="144000" step="1000" data-unit="t/a">
+                                 <span class="unit">t/a</span>
+                             </div>
+                             <div class="param-item">
+                                 <label for="gamma_k">矿石密度 γ<sub>k</sub> (t/m³)</label>
+                                 <input type="number" id="gamma_k" value="2.79" step="0.01" data-unit="t/m³">
+                                 <span class="unit">t/m³</span>
+                             </div>
+                             <div class="param-item">
+                                 <label for="z">采充比 z (m³/m³)</label>
+                                 <input type="number" id="z" value="1" min="0.8" max="1.0" step="0.05" data-unit="m³/m³">
+                                 <span class="unit">m³/m³</span>
+                             </div>
+                             <div class="param-item">
+                                 <label for="T">年工作天数 T (d)</label>
+                                 <input type="number" id="T" value="300" step="1" data-unit="d">
+                                 <span class="unit">d</span>
+                             </div>
+                         </div>
+
+                         <div class="param-group">
+                             <h4>充填参数</h4>
+                             <div class="param-item">
+                                 <label for="K1">充填沉缩比 K<sub>1</sub></label>
+                                 <input type="number" id="K1" value="1.05" min="1.05" max="1.2" step="0.05">
+                             </div>
+                             <div class="param-item">
+                                 <label for="K2">流失系数 K<sub>2</sub></label>
+                                 <input type="number" id="K2" value="1.05" min="1.02" max="1.05" step="0.01">
+                             </div>
+                             <div class="param-item">
+                                 <label for="K3">充填作业不均衡系数 K<sub>3</sub></label>
+                                 <input type="number" id="K3" value="1.2" min="1.2" max="1.5" step="0.1">
+                             </div>
+                             <div class="param-item">
+                                 <label for="t">日有效充填时间 t (h)</label>
+                                 <input type="number" id="t" value="12" step="1" data-unit="h">
+                                 <span class="unit">h</span>
+                             </div>
+                         </div>
+
+                         <div class="param-group">
+                             <h4>材料参数</h4>
+                             <div class="param-item">
+                                 <label for="pd">选厂年产尾砂量 P<sub>d</sub> (t/a)</label>
+                                 <input type="number" id="pd" value="429.6" step="10" data-unit="t/a">
+                                 <span class="unit">t/a</span>
+                             </div>
+                             <div class="param-item">
+                                 <label for="rho_c">胶凝材料密度 ρ<sub>c</sub> (t/m³)</label>
+                                 <input type="number" id="rho_c" value="3.15" step="0.01" data-unit="t/m³">
+                                 <span class="unit">t/m³</span>
+                             </div>
+                             <div class="param-item">
+                                 <label for="rho_a">集料密度 ρ<sub>a</sub> (t/m³)</label>
+                                 <input type="number" id="rho_a" value="2.76" step="0.01" data-unit="t/m³">
+                                 <span class="unit">t/m³</span>
+                             </div>
+                             <div class="param-item">
+                                 <label for="N">集料与胶凝材料质量比 N</label>
+                                 <input type="number" id="N" value="8" min="4" max="20" step="1">
+                             </div>
+                             <div class="param-item">
+                                 <label for="Cw">充填浓度 C<sub>w</sub> (%)</label>
+                                 <input type="number" id="Cw" value="0.65" min="0" max="1" step="0.01" data-unit="%">
+                                 <span class="unit">%</span>
+                             </div>
+                             <div class="param-item">
+                                 <label for="Cd">浓密机底流浓度 C<sub>d</sub> (%)</label>
+                                 <input type="number" id="Cd" value="0.63" min="0" max="1" step="0.01" data-unit="%">
+                                 <span class="unit">%</span>
+                             </div>
+                             <div class="param-item">
+                                 <label for="Ca">尾矿来料浓度 C<sub>a</sub> (%)</label>
+                                 <input type="number" id="Ca" value="0.2" min="0" max="1" step="0.01" data-unit="%">
+                                 <span class="unit">%</span>
+                             </div>
+                         </div>
+
+                         <div class="param-group">
+                             <h4>设计参数</h4>
+                             <div class="param-item">
+                                 <label for="V">采空区体积 V (万m³)</label>
+                                 <input type="number" id="V" value="11.5297" step="0.1" data-unit="万m³">
+                                 <span class="unit">万m³</span>
+                             </div>
+                             <div class="param-item">
+                                 <label for="q">设计充填能力 q (m³/h)</label>
+                                 <input type="number" id="q" value="40" step="1" data-unit="m³/h">
+                                 <span class="unit">m³/h</span>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+
+            <!-- 左栏与中栏之间的自适应手柄 -->
+            <div class="column-resizer resizer-left" data-side="left"></div>
+
+            <!-- 中间计算结果显示区域 -->
+            <div class="content-area">
+                <div class="tabs">
+                    <div class="tab active" data-tab="mining">
+                        <i class="fas fa-hammer"></i> 矿山开采计算
+                    </div>
+                    <div class="tab" data-tab="consumption">
+                        <i class="fas fa-calculator"></i> 材料消耗计算
+                    </div>
+                    <div class="tab" data-tab="thickener">
+                        <i class="fas fa-industry"></i> 浓密机选型
+                    </div>
+                    <div class="tab" data-tab="flocculant">
+                        <i class="fas fa-flask"></i> 絮凝剂选型
+                    </div>
+                    <div class="tab" data-tab="overflow">
+                        <i class="fas fa-water"></i> 溢流水计算
+                    </div>
+                </div>
+
+                                 <div class="tab-content">
+                     <!-- 矿山开采计算 -->
+                     <div class="tab-pane active" id="mining-pane">
+                         <div class="results-scroll">
+                             <div class="results-grid">
+                                 <div class="result-card">
+                                     <div class="result-header">
+                                         <h4>年平均充填实体量</h4>
+                                         <span class="formula">
+                                         Q<sub>a</sub> = z × 
+                                         <span class="fraction">
+                                             <span class="numerator">P<sub>a</sub></span>
+                                             <span class="denominator">γ<sub>k</sub></span>
+                                         </span>
+                                     </span>
+                                     </div>
+                                     <div class="result-value" id="Qa">51,613</div>
+                                     <div class="result-unit">m³/a</div>
+                                     <div class="result-description">基于采充比和年矿石产量的充填实体量</div>
+                                 </div>
+
+                                 <div class="result-card">
+                                     <div class="result-header">
+                                         <h4>日平均充填实体量</h4>
+                                         <span class="formula">
+                                         Q<sub>c</sub> = 
+                                         <span class="fraction">
+                                             <span class="numerator">Q<sub>a</sub></span>
+                                             <span class="denominator">T</span>
+                                         </span>
+                                     </span>
+                                     </div>
+                                     <div class="result-value" id="Qc">172</div>
+                                     <div class="result-unit">m³/d</div>
+                                     <div class="result-description">年充填量除以年工作天数</div>
+                                 </div>
+
+                                 <div class="result-card">
+                                     <div class="result-header">
+                                         <h4>日平均充填料浆量</h4>
+                                         <span class="formula">
+                                         Q<sub>s</sub> = K<sub>1</sub> × K<sub>2</sub> × Q<sub>c</sub>
+                                     </span>
+                                     </div>
+                                     <div class="result-value" id="Qs">190</div>
+                                     <div class="result-unit">m³/d</div>
+                                     <div class="result-description">考虑沉缩比和流失系数的料浆量</div>
+                                 </div>
+
+                                 <div class="result-card">
+                                     <div class="result-header">
+                                         <h4>日充填料浆制备能力</h4>
+                                         <span class="formula">
+                                         Q<sub>d</sub> = K<sub>3</sub> × Q<sub>s</sub>
+                                     </span>
+                                     </div>
+                                     <div class="result-value" id="Qd">228</div>
+                                     <div class="result-unit">m³/d</div>
+                                     <div class="result-description">考虑不均衡系数的制备能力</div>
+                                 </div>
+
+                                 <div class="result-card">
+                                     <div class="result-header">
+                                         <h4>小时充填料浆制备能力</h4>
+                                         <span class="formula">
+                                         q<sub>h</sub> = 
+                                         <span class="fraction">
+                                             <span class="numerator">Q<sub>d</sub></span>
+                                             <span class="denominator">t</span>
+                                         </span>
+                                     </span>
+                                     </div>
+                                     <div class="result-value" id="qh">19</div>
+                                     <div class="result-unit">m³/h</div>
+                                     <div class="result-description">日制备能力除以日工作时间</div>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+
+                                         <!-- 材料消耗计算 -->
+                     <div class="tab-pane" id="consumption-pane">
+                         <div class="results-scroll">
+                             <div class="results-grid">
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>料浆密度</h4>
+                                                                         <span class="formula">
+                                         ρ<sub>m</sub> = 
+                                         <span class="fraction">
+                                             <span class="numerator">ρ<sub>c</sub> × ρ<sub>a</sub> × (1+N)</span>
+                                             <span class="denominator">C<sub>w</sub> × (ρ<sub>a</sub> + N×ρ<sub>c</sub>) + (1-C<sub>w</sub>) × ρ<sub>c</sub>×ρ<sub>a</sub>×(1+N)</span>
+                                         </span>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="rho_m">1.717</div>
+                                <div class="result-unit">t/m³</div>
+                                <div class="result-description">基于组分密度和浓度的料浆密度</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>每m³料浆中集料质量</h4>
+                                                                         <span class="formula">
+                                         m<sub>a</sub> = ρ<sub>m</sub> × 
+                                         <span class="fraction">
+                                             <span class="numerator">N × C<sub>w</sub></span>
+                                             <span class="denominator">1+N</span>
+                                         </span>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="ma">0.992</div>
+                                <div class="result-unit">t/m³</div>
+                                <div class="result-description">集料在料浆中的质量占比</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>每m³料浆中胶凝材料质量</h4>
+                                                                         <span class="formula">
+                                         m<sub>c</sub> = ρ<sub>m</sub> × 
+                                         <span class="fraction">
+                                             <span class="numerator">C<sub>w</sub></span>
+                                             <span class="denominator">1+N</span>
+                                         </span>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="mc">0.124</div>
+                                <div class="result-unit">t/m³</div>
+                                <div class="result-description">胶凝材料在料浆中的质量占比</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>胶凝材料年消耗量</h4>
+                                                                         <span class="formula">
+                                         Q<sub>j</sub> = q × t × T × m<sub>c</sub>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="Qj">16,084.8</div>
+                                <div class="result-unit">t/a</div>
+                                <div class="result-description">年度胶凝材料总消耗量</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>全尾砂年消耗量</h4>
+                                                                         <span class="formula">
+                                         Q<sub>砂</sub> = q × t × T × m<sub>a</sub>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="Q_sand">142,890</div>
+                                <div class="result-unit">t/a</div>
+                                <div class="result-description">年度尾砂总消耗量</div>
+                            </div>
+                                                     </div>
+                         </div>
+                     </div>
+
+                     <!-- 浓密机选型计算 -->
+                     <div class="tab-pane" id="thickener-pane">
+                         <div class="results-scroll">
+                             <div class="results-grid">
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>浓密机直径</h4>
+                                                                         <span class="formula">
+                                         D = 2 × √
+                                         <span class="fraction">
+                                             <span class="numerator">q</span>
+                                             <span class="denominator">t × μ × π</span>
+                                         </span>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="D">7.95</div>
+                                <div class="result-unit">m</div>
+                                <div class="result-description">基于处理能力的浓密机直径</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>单位直筒高度沉积床体积</h4>
+                                                                         <span class="formula">
+                                         V<sub>1</sub> = 
+                                         <span class="fraction">
+                                             <span class="numerator">π × D²</span>
+                                             <span class="denominator">4</span>
+                                         </span>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="V1">78.5</div>
+                                <div class="result-unit">m³</div>
+                                <div class="result-description">每米高度的沉积床体积</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>浓密机总高度</h4>
+                                                                         <span class="formula">
+                                         H = H<sub>0</sub> + H<sub>1</sub> + H<sub>2</sub>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="H">11</div>
+                                <div class="result-unit">m</div>
+                                <div class="result-description">进料井+沉积床+自由沉降高度</div>
+                            </div>
+                                                     </div>
+                         </div>
+                     </div>
+
+                     <!-- 絮凝剂设备选型 -->
+                     <div class="tab-pane" id="flocculant-pane">
+                         <div class="results-scroll">
+                             <div class="results-grid">
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>絮凝剂小时用量</h4>
+                                                                         <span class="formula">
+                                         q<sub>x</sub> = q × g<sub>x</sub>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="qx">0.08</div>
+                                <div class="result-unit">t/h</div>
+                                <div class="result-description">基于充填能力的絮凝剂用量</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>絮凝剂小时用水量</h4>
+                                                                         <span class="formula">
+                                         q<sub>ss</sub> = q<sub>x</sub> × 
+                                         <span class="fraction">
+                                             <span class="numerator">1-ω<sub>x</sub></span>
+                                             <span class="denominator">1000×ω<sub>x</sub></span>
+                                         </span>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="qss">0.79</div>
+                                <div class="result-unit">m³/h</div>
+                                <div class="result-description">絮凝剂溶液制备用水量</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>絮凝剂制备能力</h4>
+                                                                         <span class="formula">
+                                         Q<sub>xz</sub> = q<sub>x</sub> × t × K<sub>4</sub>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="Qxz">1.15</div>
+                                <div class="result-unit">t/d</div>
+                                <div class="result-description">考虑不均衡系数的日制备能力</div>
+                            </div>
+                                                     </div>
+                         </div>
+                     </div>
+
+                     <!-- 溢流水计算 -->
+                     <div class="tab-pane" id="overflow-pane">
+                         <div class="results-scroll">
+                             <div class="results-grid">
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>尾矿来料小时流量</h4>
+                                                                         <span class="formula">
+                                         q<sub>1</sub> = 
+                                         <span class="fraction">
+                                             <span class="numerator">P<sub>d</sub></span>
+                                             <span class="denominator">T × t × C<sub>a</sub> × ρ<sub>a</sub></span>
+                                         </span>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="q1">86.36</div>
+                                <div class="result-unit">m³/h</div>
+                                <div class="result-description">尾矿来料的小时处理量</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>底流小时流量</h4>
+                                                                         <span class="formula">
+                                         q<sub>2</sub> = 
+                                         <span class="fraction">
+                                             <span class="numerator">P<sub>d</sub></span>
+                                             <span class="denominator">T × t × C<sub>d</sub> × ρ<sub>a</sub></span>
+                                         </span>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="q2">11.48</div>
+                                <div class="result-unit">m³/h</div>
+                                <div class="result-description">浓密机底流的小时流量</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-header">
+                                    <h4>溢流水量</h4>
+                                                                         <span class="formula">
+                                         q<sub>溢流</sub> = q<sub>1</sub> - q<sub>2</sub> + q<sub>絮</sub>
+                                     </span>
+                                </div>
+                                <div class="result-value" id="q_overflow">75.67</div>
+                                <div class="result-unit">m³/h</div>
+                                <div class="result-description">系统溢流的总水量</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中栏与右栏之间的自适应手柄 -->
+            <div class="column-resizer resizer-right" data-side="right"></div>
+
+            <!-- 右侧图表和统计区域 -->
+            <div class="sidebar right-sidebar">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-chart-bar"></i> 关键指标统计</h3>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-mountain"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-sand">142,890</div>
+                                <div class="stat-label">年尾砂消耗量 (t/a)</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-cube"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-cement">16,084</div>
+                                <div class="stat-label">胶凝材料消耗量 (t/a)</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-fill">172</div>
+                                <div class="stat-label">日充填实体量 (m³/d)</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-hourly">40</div>
+                                <div class="stat-label">小时充填能力 (m³/h)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                                <div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-chart-pie"></i> 材料消耗分析</h3>
+                        </div>
+                        <div class="chart-container" id="consumptionChart"></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-industry"></i> 浓密机参数</h3>
+                        </div>
+                        <div class="chart-container" id="thickenerChart"></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-flask"></i> 料浆组分比例</h3>
+                        </div>
+                        <div class="chart-container" id="slurryChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <!-- 通知提示 -->
+    <div id="notification" class="notification hidden">
+        <div class="notification-content">
+            <i class="fas fa-check-circle"></i>
+            <span id="notificationText"></span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
